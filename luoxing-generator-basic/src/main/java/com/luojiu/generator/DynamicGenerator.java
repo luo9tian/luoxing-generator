@@ -5,10 +5,7 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 
 /**
  * 动态文件生成
@@ -51,7 +48,9 @@ public class DynamicGenerator {
         Template template = configuration.getTemplate(templateName);
 
         // 生成
-        Writer out = new FileWriter(outputPath);
+//        Writer out = new FileWriter(outputPath);
+        //解决打包生成复制代码中文乱码
+        Writer out =new OutputStreamWriter(new FileOutputStream(outputPath),"UTF-8");
         template.process(model, out);
 
         // 生成文件后别忘了关闭哦
