@@ -1,0 +1,53 @@
+{
+  "name": "acm-template-pro-generator",
+  "description": "ACM 示例模板生成器",
+  "basePackage": "com.luojiu",
+  "version": "1.0",
+  "author": "luojiu",
+  "createTime": "2023-11-22",
+  "fileConfig": {
+    "outputRootPath": "autoGenerator",
+    "sourceRootPath": "D:/项目练习/luoxing-generator/luoxing-generator-demo-projects/acm-template-pro",
+    "type": "dir",
+    "files": [
+      {
+        "inputPath": "src/com/luojiu/acm/MainTemplate.java.ftl",
+        "outputPath": "src/com/luojiu/acm/MainTemplate.java",
+        "type": "file",
+        "generateType": "dynamic"
+      },
+
+      {
+        "inputPath": "README.md",
+        "outputPath": "README.md",
+        "type": "file",
+        "generateType": "static"
+      }
+    ]
+  },
+  "modelConfig": {
+    "models": [
+      {
+        "fieldName": "loop",
+        "type": "boolean",
+        "description": "是否生成循环",
+        "defaultValue": false,
+        "abbr": "l"
+      },
+      {
+        "fieldName": "author",
+        "type": "String",
+        "description": "作者注释",
+        "defaultValue": "yupi",
+        "abbr": "a"
+      },
+      {
+        "fieldName": "outputText",
+        "type": "String",
+        "description": "输出信息",
+        "defaultValue": "sum = ",
+        "abbr": "o"
+      }
+    ]
+  }
+}

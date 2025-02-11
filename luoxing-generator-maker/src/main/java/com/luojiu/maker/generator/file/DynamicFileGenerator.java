@@ -1,27 +1,16 @@
-package com.luojiu.generator;
+package com.luojiu.maker.generator.file;
 
-import cn.hutool.extra.template.TemplateException;
-import com.luojiu.model.MainTemplateConfig;
+import cn.hutool.core.io.FileUtil;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
+import freemarker.template.TemplateException;
 
 import java.io.*;
 
 /**
  * 动态文件生成
  */
-public class DynamicGenerator {
-
-    public static void main(String[] args) throws IOException, TemplateException, freemarker.template.TemplateException {
-        String projectPath = System.getProperty("user.dir")+File.separator+"luoxing-generator-basic";
-        String inputPath = projectPath + File.separator + "src/main/resources/templates/MainTemplate.java.ftl";
-        String outputPath = projectPath + File.separator + "MainTemplate.java";
-        MainTemplateConfig mainTemplateConfig = new MainTemplateConfig();
-        mainTemplateConfig.setAuthor("yupi");
-        mainTemplateConfig.setLoop(false);
-        mainTemplateConfig.setOutputText("求和结果：");
-        doGenerate(inputPath, outputPath, mainTemplateConfig);
-    }
+public class DynamicFileGenerator {
 
     /**
      * 生成文件
@@ -32,9 +21,10 @@ public class DynamicGenerator {
      * @throws IOException
      * @throws TemplateException
      */
-    public static void doGenerate(String inputPath, String outputPath, Object model) throws IOException, TemplateException, freemarker.template.TemplateException {
+    public static void doGenerate(String inputPath, String outputPath, Object model) throws IOException, TemplateException {
         // new 出 Configuration 对象，参数为 FreeMarker 版本号
-        Configuration configuration=new Configuration(Configuration.VERSION_2_3_32);
+        Configuration configuration = new Configuration(Configuration.VERSION_2_3_32);
+
         // 指定模板文件所在的路径
         File templateDir = new File(inputPath).getParentFile();
         configuration.setDirectoryForTemplateLoading(templateDir);
@@ -45,7 +35,10 @@ public class DynamicGenerator {
         // 创建模板对象，加载指定模板
         String templateName = new File(inputPath).getName();
         Template template = configuration.getTemplate(templateName);
-
+        //如果输出文件路径不存在新建文件
+        if(!FileUtil.exist(outputPath)){
+            FileUtil.touch(outputPath);
+        }
         // 生成
 //        Writer out = new FileWriter(outputPath);
         //解决打包生成复制代码中文乱码
