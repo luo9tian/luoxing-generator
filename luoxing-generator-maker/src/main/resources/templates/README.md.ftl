@@ -14,9 +14,32 @@
 
 示例命令：
 
-generator generate <#list modelConfig.models as modelInfo>-${modelInfo.abbr} </#list>
+generator generate <#list modelConfig.models as modelInfo>
+    <#if modelInfo.groupKey??>
+    <#else>
+        --${modelInfo.fieldName}
+    </#if>
+</#list>
 
 <#list modelConfig.models as modelInfo>
+<#if modelInfo.groupKey??>
+${modelInfo?index + 1}）${modelInfo.groupKey}
+数据组名：${modelInfo.groupName}
+类型：${modelInfo.type}
+描述：${modelInfo.description}
+<#list modelInfo.models as modelInfo>
+    ${modelInfo?index + 1}）${modelInfo.fieldName}
+
+    类型：${modelInfo.type}
+
+    描述：${modelInfo.description}
+
+    默认值：${modelInfo.defaultValue?c}
+    <#if modelInfo.abbr??>
+    缩写： -${modelInfo.abbr}
+    </#if>
+</#list>
+<#else>
 ${modelInfo?index + 1}）${modelInfo.fieldName}
 
 类型：${modelInfo.type}
@@ -24,8 +47,8 @@ ${modelInfo?index + 1}）${modelInfo.fieldName}
 描述：${modelInfo.description}
 
 默认值：${modelInfo.defaultValue?c}
-
+<#if modelInfo.abbr??>
 缩写： -${modelInfo.abbr}
-
-
+</#if>
+</#if>
 </#list>

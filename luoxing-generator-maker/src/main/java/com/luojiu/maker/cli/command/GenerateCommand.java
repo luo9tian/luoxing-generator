@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.luojiu.maker.generator.file.FileGenerator;
 import com.luojiu.maker.model.DataModel;
 import lombok.Data;
+import picocli.CommandLine;
 import picocli.CommandLine.*;
 
 import java.util.concurrent.Callable;

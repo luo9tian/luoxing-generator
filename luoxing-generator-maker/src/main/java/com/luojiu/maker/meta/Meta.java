@@ -8,7 +8,6 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 public class Meta {
-
     private String name;
     private String description;
     private String basePackage;
@@ -34,6 +33,10 @@ public class Meta {
             private String outputPath;
             private String type;
             private String generateType;
+            private String condition;
+            private String groupKey;
+            private String groupName;
+            private List<FileInfo> files;
         }
     }
 
@@ -50,6 +53,13 @@ public class Meta {
             private String description;
             private Object defaultValue;
             private String abbr;
+            private String condition;
+            private String groupKey;
+            private String groupName;
+            private List<ModelInfo> models;
+
+            //中间参数分组之下所有字段
+            private String allArgsStr;
         }
     }
 }

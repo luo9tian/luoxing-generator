@@ -16,6 +16,7 @@ import java.lang.reflect.Field;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class MetaValidator {
     public static void doValidAndFill(Meta meta) {
@@ -36,6 +37,14 @@ public class MetaValidator {
             return;
         }
         for (Meta.ModelConfig.ModelInfo modelInfo:models) {
+            if(StrUtil.isNotEmpty(modelInfo.getGroupKey())){
+                List<Meta.ModelConfig.ModelInfo> subModelInfoList = modelInfo.getModels();
+                String allArgsStr = subModelInfoList.stream()
+                                    .map(subModelInfo -> String.format("\"--%s\"", subModelInfo.getFieldName()))
+                                    .collect(Collectors.joining(","));
+                modelInfo.setAllArgsStr(allArgsStr);
+                continue;
+            }
             //字段名必填
             String fieldName = modelInfo.getFieldName();
             if(StrUtil.isBlank(fieldName)){
@@ -79,6 +88,10 @@ public class MetaValidator {
             return;
         }
         for (Meta.FileConfig.FileInfo fileInfo:files) {
+            String fileType = fileInfo.getType();
+            if(fileType.equals(FileTypeEnum.GROUP.getValue())){
+                continue;
+            }
             //输入路径必填
             String inputPath = fileInfo.getInputPath();
             if(StrUtil.isBlank(inputPath)){
@@ -89,7 +102,6 @@ public class MetaValidator {
             if(StrUtil.isBlank(outputPath)){
                 fileInfo.setOutputPath(defaultOutputPath);
             }
-            String fileType = fileInfo.getType();
             if(StrUtil.isBlank(fileType)){
                 if(StrUtil.isEmpty(FileUtil.getSuffix(inputPath))){
                     fileInfo.setType(FileTypeEnum.DIR.getValue());

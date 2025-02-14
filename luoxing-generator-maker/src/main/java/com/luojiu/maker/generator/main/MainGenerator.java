@@ -21,6 +21,7 @@ public class MainGenerator extends GeneratorTemplate{
 
     public static void main(String[] args) throws TemplateException, IOException, InterruptedException {
         MainGenerator mainGenerator=new MainGenerator();
+//        args=new String[]{"generate --needGit=true"};
         mainGenerator.doGenerate();
     }
 
