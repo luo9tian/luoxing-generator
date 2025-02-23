@@ -76,6 +76,7 @@ luoxing-generator.iml
 luoxing-generator-basic/luoxing-generator-basic.iml
 luoxing-generator-maker/luoxing-generator-maker.iml
 autoGenerator
+.temp
 ### Java template
 # Compiled class file
 *.class
