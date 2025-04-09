@@ -15,14 +15,17 @@ import java.io.IOException;
 
 public class MainGenerator extends GeneratorTemplate{
     @Override
-    protected void buildDest(String outputParentPath, String sourceOutputPath, String jarPath, String shellOutputPath) {
+    protected String buildDest(String outputParentPath, String sourceOutputPath, String jarPath, String shellOutputPath) {
         System.out.println("不用精简");
+        return "";
     }
 
     public static void main(String[] args) throws TemplateException, IOException, InterruptedException {
-        MainGenerator mainGenerator=new MainGenerator();
+//        GeneratorTemplate generatorTemplate=new MainGenerator();
+
 //        args=new String[]{"generate --needGit=true"};
-        mainGenerator.doGenerate();
+        GeneratorTemplate generatorTemplate=new ZipGenerator();
+        generatorTemplate.doGenerate();
     }
 
 }

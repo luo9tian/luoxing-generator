@@ -12,15 +12,23 @@ import com.luojiu.web.constant.FileConstant;
 import com.luojiu.web.manager.CosManager;
 import com.luojiu.web.service.UserService;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.qcloud.cos.exception.CosClientException;
+import com.qcloud.cos.exception.CosServiceException;
+import com.qcloud.cos.model.COSObject;
+import com.qcloud.cos.model.GetObjectRequest;
+import com.qcloud.cos.model.PutObjectResult;
+import com.qcloud.cos.utils.IOUtils;
+import io.lettuce.core.output.ListOfGenericMapsOutput;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -36,6 +44,49 @@ public class FileController {
 
     @Resource
     private CosManager cosManager;
+
+    @PostMapping("test/upload")
+    public BaseResponse<String> testUploadFile(MultipartFile multipartFile) {
+        String originalFilename = multipartFile.getOriginalFilename();
+        String filePath=String.format("/test/%s",originalFilename);
+        File file=null;
+        try {
+            file=File.createTempFile(filePath,null);
+            multipartFile.transferTo(file);
+            cosManager.putObject(filePath,file);
+            return ResultUtils.success(filePath);
+        } catch (IOException e) {
+            log.error("文件上传失败，FilePath: "+filePath,e);
+            e.printStackTrace();
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR,"上传失败");
+        }
+        finally {
+            if(file!=null){
+                boolean delete=file.delete();
+                if(!delete){
+                    log.error("文件删除失败，FilePath: {}"+filePath);
+                }
+            }
+        }
+    }
+    @GetMapping("test/download")
+    public void testDownload(String filePath, HttpServletResponse response) throws IOException {
+        InputStream cosObjectInput = null;
+        try {
+            COSObject cosObject = cosManager.getObject(filePath);
+            cosObjectInput = cosObject.getObjectContent();
+            byte[] bytes = IOUtils.toByteArray(cosObjectInput);
+            response.setHeader("Content-Disposition","attachment;filename="+filePath);
+            response.setContentType("application/octet-stream;charset=UTF-8");
+            response.getOutputStream().write(bytes);
+            response.getOutputStream().flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if(cosObjectInput!=null)
+            cosObjectInput.close();
+        }
+    }
 
     /**
      * 文件上传
@@ -66,7 +117,7 @@ public class FileController {
             multipartFile.transferTo(file);
             cosManager.putObject(filepath, file);
             // 返回可访问地址
-            return ResultUtils.success(FileConstant.COS_HOST + filepath);
+            return ResultUtils.success( filepath);
         } catch (Exception e) {
             log.error("file upload error, filepath = " + filepath, e);
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "上传失败");

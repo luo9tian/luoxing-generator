@@ -1,10 +1,13 @@
 package com.luojiu.web.controller;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.annotations.GwtIncompatible;
 import com.luojiu.web.annotation.AuthCheck;
 import com.luojiu.web.exception.BusinessException;
 import com.luojiu.web.exception.ThrowUtils;
+import com.luojiu.web.manager.CosManager;
 import com.luojiu.web.meta.Meta;
 import com.luojiu.web.model.dto.generator.GeneratorAddRequest;
 import com.luojiu.web.model.dto.generator.GeneratorEditRequest;
@@ -20,9 +23,16 @@ import com.luojiu.web.model.dto.generator.GeneratorQueryRequest;
 import com.luojiu.web.model.dto.generator.GeneratorUpdateRequest;
 import com.luojiu.web.service.GeneratorService;
 import com.luojiu.web.service.UserService;
+
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.qcloud.cos.model.COSObject;
+import com.qcloud.cos.utils.IOUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
@@ -41,7 +51,8 @@ public class GeneratorController {
 
     @Resource
     private UserService userService;
-
+    @Resource
+    private CosManager cosManager;
     // region 增删改查
 
     /**
@@ -267,5 +278,35 @@ public class GeneratorController {
         boolean result = generatorService.updateById(generator);
         return ResultUtils.success(result);
     }
-
+    @GetMapping("/download")
+    public void downloadGeneratorById(Long id, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if(id<=0){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User user=userService.getLoginUser(request);
+        Generator generator = generatorService.getById(id);
+        if(generator==null){
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
+        }
+        String filePath=generator.getDistPath();
+        if(StrUtil.isBlank(filePath)){
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR,"产物包不存在");
+        }
+        log.info("用户 {}下载了 {}",user,filePath);
+        InputStream cosObjectInput = null;
+        try {
+            COSObject cosObject = cosManager.getObject(filePath);
+            cosObjectInput = cosObject.getObjectContent();
+            byte[] bytes = IOUtils.toByteArray(cosObjectInput);
+            response.setHeader("Content-Disposition","attachment;filename="+filePath);
+            response.setContentType("application/octet-stream;charset=UTF-8");
+            response.getOutputStream().write(bytes);
+            response.getOutputStream().flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if(cosObjectInput!=null)
+                cosObjectInput.close();
+        }
+    }
 }

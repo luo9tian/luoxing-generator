@@ -34,13 +34,14 @@ export const requestConfig: RequestConfig = {
     (response) => {
       // 请求地址
       const requestPath: string = response.config.url ?? '';
-
       // 响应
       const { data } = response as unknown as ResponseStructure;
       if (!data) {
         throw new Error('服务异常');
       }
-
+      if(requestPath.includes("download")){
+        return response;
+      }
       // 错误码处理
       const code: number = data.code;
       // 未登录，且不为获取用户登录信息接口

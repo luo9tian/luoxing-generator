@@ -2,6 +2,7 @@ package com.luojiu.maker.generator.main;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.resource.ClassPathResource;
+import cn.hutool.core.util.ZipUtil;
 import com.luojiu.maker.generator.JarGenerator;
 import com.luojiu.maker.generator.ScriptGenerator;
 import com.luojiu.maker.generator.file.DynamicFileGenerator;
@@ -33,7 +34,7 @@ public class GeneratorTemplate {
         buildDest(outputParentPath, sourceOutputPath, jarPath, shellOutputPath);
     }
 
-    protected void buildDest(String outputParentPath, String sourceOutputPath, String jarPath, String shellOutputPath) {
+    protected String buildDest(String outputParentPath, String sourceOutputPath, String jarPath, String shellOutputPath) {
         String destOutputPath= outputParentPath +"-dest";
         String targetOutputPath=destOutputPath+File.separator+"target";
         FileUtil.mkdir(targetOutputPath);
@@ -44,6 +45,7 @@ public class GeneratorTemplate {
         FileUtil.copy(jarOutputPath,targetOutputPath,true);
         //复制脚本
         FileUtil.copy(shellOutputPath,destOutputPath,true);
+        return destOutputPath;
     }
 
     protected String buildScript(String outputParentPath, String jarPath) throws IOException {
@@ -120,5 +122,9 @@ public class GeneratorTemplate {
         FileUtil.copy(sourceRootPath,sourceOutputPath,false);
         return sourceOutputPath;
     }
-
+    protected String buildZip(String outputPath){
+        String zipPath=outputPath+".zip";
+        ZipUtil.zip(outputPath,zipPath);
+        return zipPath;
+    }
 }

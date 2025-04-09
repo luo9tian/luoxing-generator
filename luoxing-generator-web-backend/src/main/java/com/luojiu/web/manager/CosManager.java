@@ -1,6 +1,10 @@
 package com.luojiu.web.manager;
 
 import com.qcloud.cos.COSClient;
+import com.qcloud.cos.exception.CosClientException;
+import com.qcloud.cos.exception.CosServiceException;
+import com.qcloud.cos.model.COSObject;
+import com.qcloud.cos.model.GetObjectRequest;
 import com.qcloud.cos.model.PutObjectRequest;
 import com.qcloud.cos.model.PutObjectResult;
 import com.luojiu.web.config.CosClientConfig;
@@ -45,4 +49,9 @@ public class CosManager {
                 file);
         return cosClient.putObject(putObjectRequest);
     }
+    public COSObject getObject(String key)
+            throws CosClientException, CosServiceException{
+        return cosClient.getObject(cosClientConfig.getBucket(),key);
+    }
+
 }
